@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { generateAIResponse } from '../../lib/openai';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 interface ChatApiRequest {
-  messages: Array<{role: string; content: string}>;
+  messages: ChatCompletionMessageParam[];
 }
 
 interface ChatApiResponse {

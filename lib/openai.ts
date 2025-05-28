@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { TranscriptionResponse, OpenAIResponse, FeedbackResponse } from './types';
 
 const openai = new OpenAI({
@@ -16,11 +17,11 @@ export async function transcribeAudio(audioFile: File): Promise<TranscriptionRes
     return { success: true, text: transcription };
   } catch (error) {
     console.error('Transcription error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown transcription error' };
   }
 }
 
-export async function generateAIResponse(messages: Array<{role: string; content: string}>): Promise<OpenAIResponse> {
+export async function generateAIResponse(messages: ChatCompletionMessageParam[]): Promise<OpenAIResponse> {
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
@@ -31,13 +32,18 @@ export async function generateAIResponse(messages: Array<{role: string; content:
       frequency_penalty: 0.1
     });
     
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No response content received from OpenAI');
+    }
+    
     return { 
       success: true, 
-      response: completion.choices[0].message.content.trim() 
+      response: content.trim() 
     };
   } catch (error) {
     console.error('AI response error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown AI response error' };
   }
 }
 
@@ -55,7 +61,10 @@ export async function generateSessionFeedback(feedbackPrompt: string): Promise<F
       temperature: 0.3
     });
     
-    const feedbackText = completion.choices[0].message.content.trim();
+    const feedbackText = completion.choices[0]?.message?.content?.trim();
+    if (!feedbackText) {
+      throw new Error('No feedback content received from OpenAI');
+    }
     
     // Parse the feedback into score and bullet points
     const lines = feedbackText.split('\n').filter(line => line.trim());
@@ -100,7 +109,7 @@ export async function generateSessionFeedback(feedbackPrompt: string): Promise<F
     };
   } catch (error) {
     console.error('Feedback generation error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown feedback generation error' };
   }
 }
 

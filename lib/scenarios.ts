@@ -1,4 +1,5 @@
 import { Scenario, Persona, ConversationExchange } from './types';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 export const scenarios: Record<string, Scenario> = {
   cold_call: {
@@ -57,11 +58,11 @@ export function buildConversationPrompt(
   scenario: Scenario, 
   conversationHistory: ConversationExchange[], 
   userMessage: string
-): Array<{role: string; content: string}> {
+): ChatCompletionMessageParam[] {
   const personaData = persona;
   const scenarioData = scenario;
   
-  const systemMessage = {
+  const systemMessage: ChatCompletionMessageParam = {
     role: 'system',
     content: `${personaData.systemPrompt}
 
@@ -77,21 +78,21 @@ IMPORTANT INSTRUCTIONS:
 - If they're struggling, respond according to your persona's nature`
   };
 
-  const messages = [systemMessage];
+  const messages: ChatCompletionMessageParam[] = [systemMessage];
   
   // Add conversation history
   conversationHistory.forEach(exchange => {
     if (exchange.user) {
-      messages.push({ role: 'user', content: exchange.user });
+      messages.push({ role: 'user', content: exchange.user } as ChatCompletionMessageParam);
     }
     if (exchange.assistant) {
-      messages.push({ role: 'assistant', content: exchange.assistant });
+      messages.push({ role: 'assistant', content: exchange.assistant } as ChatCompletionMessageParam);
     }
   });
   
   // Add current user message
   if (userMessage) {
-    messages.push({ role: 'user', content: userMessage });
+    messages.push({ role: 'user', content: userMessage } as ChatCompletionMessageParam);
   }
   
   return messages;
