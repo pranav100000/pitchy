@@ -1,0 +1,378 @@
+# AI Sales Practice Tool - Simplified MVP PRD
+
+## 1. Product Overview
+
+### 1.1 Vision
+A simple, single-user web application for practicing sales pitches with AI customer personas. No accounts, no logins - just immediate practice sessions.
+
+### 1.2 Core Value Proposition
+- Instant AI-powered sales practice
+- Realistic customer conversations
+- Quick feedback after each session
+- Zero setup required
+
+## 2. Functional Requirements
+
+### 2.1 Core Features (MVP Only)
+
+#### 2.1.1 Simple Landing Interface
+- **Requirement**: Single page with practice session setup
+- **Details**:
+  - Select customer persona (3 predefined options)
+  - Select scenario type (Cold Call, Product Demo, Objection Handling)
+  - "Start Practice" button
+  - No user accounts or authentication needed
+
+#### 2.1.2 AI Customer Personas (3 Fixed Options)
+- **Skeptical Steve**: Doubts everything, asks tough questions, price-focused
+- **Busy Betty**: Always in a hurry, wants quick answers, decision-maker
+- **Technical Tom**: Asks detailed technical questions, needs specifications
+
+#### 2.1.3 Voice Conversation
+- **Requirement**: Real-time voice chat with AI customer
+- **Details**:
+  - Click to start/stop recording
+  - AI responds with voice
+  - Simple conversation interface
+  - Session ends when user clicks "End Session"
+
+#### 2.1.4 Basic Feedback
+- **Requirement**: Simple feedback after session ends
+- **Details**:
+  - Overall score (1-100)
+  - 3-4 bullet points of specific feedback
+  - Conversation transcript
+  - "Try Again" button to restart
+
+## 3. Technical Requirements
+
+### 3.1 Architecture
+- **Frontend**: Single React/Next.js page
+- **AI**: OpenAI GPT-4 API for conversations
+- **Speech**: OpenAI Whisper for speech-to-text, browser TTS for AI voice
+- **Storage**: Browser localStorage for session data (no database)
+- **Hosting**: Vercel (free tier)
+
+### 3.2 File Structure
+```
+sales-practice-app/
+├── pages/
+│   └── index.js                 # Main app page
+├── components/
+│   ├── PersonaSelector.js       # Choose customer type
+│   ├── ConversationInterface.js # Voice chat UI
+│   ├── FeedbackDisplay.js       # Show results
+│   └── AudioRecorder.js         # Handle voice recording
+├── lib/
+│   ├── openai.js               # OpenAI API calls
+│   ├── personas.js             # Persona definitions
+│   └── scenarios.js           # Scenario prompts
+└── package.json
+```
+
+### 3.3 API Routes
+```javascript
+// pages/api/chat.js - Handle AI conversation
+export default async function handler(req, res) {
+  const { message, persona, scenario, conversationHistory } = req.body;
+  
+  // Generate AI response using OpenAI
+  const response = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: buildConversationPrompt(persona, scenario, conversationHistory, message)
+  });
+  
+  return res.json({ response: response.choices[0].message.content });
+}
+
+// pages/api/transcribe.js - Convert speech to text
+export default async function handler(req, res) {
+  const audioFile = req.body; // Audio blob from frontend
+  
+  const transcription = await openai.audio.transcriptions.create({
+    file: audioFile,
+    model: "whisper-1"
+  });
+  
+  return res.json({ text: transcription.text });
+}
+
+// pages/api/feedback.js - Generate session feedback
+export default async function handler(req, res) {
+  const { transcript, persona, scenario } = req.body;
+  
+  const feedback = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [{ role: "user", content: buildFeedbackPrompt(transcript, scenario) }]
+  });
+  
+  return res.json({ feedback: feedback.choices[0].message.content });
+}
+```
+
+## 4. User Interface
+
+### 4.1 Single Page Layout
+
+#### 4.1.1 Setup Section (Initial State)
+```
+[Header: "AI Sales Practice Tool"]
+
+Choose Your Customer:
+○ Skeptical Steve (Price-focused, asks tough questions)
+○ Busy Betty (Quick decision-maker, always in a hurry) 
+○ Technical Tom (Wants detailed specs and features)
+
+Choose Scenario:
+○ Cold Call (Introducing yourself and product)
+○ Product Demo (Showing product features/benefits)
+○ Objection Handling (Customer has concerns to address)
+
+[Start Practice Session] (large button)
+```
+
+#### 4.1.2 Conversation Section (During Session)
+```
+[Header with persona info: "Practicing with: Skeptical Steve"]
+
+[Audio Visualizer - shows when AI is speaking]
+
+[🎤 Hold to Talk] (large button)
+[End Session] (smaller button)
+
+Conversation:
+User: "Hi, I'd like to tell you about our new software..."
+Steve: "I'm not interested in more software. We already have too many tools."
+User: "I understand, but this could actually replace 3 of your current tools..."
+```
+
+#### 4.1.3 Feedback Section (After Session)
+```
+[Header: "Session Complete!"]
+
+Overall Score: 78/100
+
+Key Feedback:
+• Strong opening - you acknowledged the customer's concern immediately
+• Good use of questioning to uncover needs  
+• Could improve: Be more specific about ROI numbers
+• Try handling the pricing objection more confidently
+
+[View Full Transcript] [Practice Again] [Try Different Scenario]
+```
+
+## 5. Implementation Details
+
+### 5.1 Persona Definitions
+```javascript
+// lib/personas.js
+export const personas = {
+  skeptical_steve: {
+    name: "Skeptical Steve",
+    description: "Price-focused, doubts everything",
+    systemPrompt: `You are Skeptical Steve, a potential customer who:
+    - Is very concerned about price and ROI
+    - Asks tough, challenging questions
+    - Needs strong proof points to be convinced
+    - Often says things like "That sounds expensive" or "How do I know this will work?"
+    - Has been burned by bad purchases before
+    Keep responses short and challenging. Make the salesperson work for your interest.`
+  },
+  busy_betty: {
+    name: "Busy Betty", 
+    description: "Quick decision-maker, always in a hurry",
+    systemPrompt: `You are Busy Betty, a potential customer who:
+    - Is always pressed for time
+    - Wants quick, direct answers
+    - Can make decisions fast if convinced
+    - Often says "I only have 5 minutes" or "Get to the point"
+    - Values efficiency above all else
+    Keep responses very brief. Show impatience if the salesperson is too wordy.`
+  },
+  technical_tom: {
+    name: "Technical Tom",
+    description: "Wants detailed specs and features", 
+    systemPrompt: `You are Technical Tom, a potential customer who:
+    - Asks detailed technical questions
+    - Wants to know exactly how things work
+    - Cares about integrations, security, scalability
+    - Often asks "What's the API like?" or "How does it handle [technical scenario]?"
+    - Makes decisions based on technical merit
+    Ask specific technical questions. Don't be satisfied with vague answers.`
+  }
+};
+```
+
+### 5.2 Audio Recording Component
+```javascript
+// components/AudioRecorder.js
+import { useState, useRef } from 'react';
+
+export default function AudioRecorder({ onTranscription }) {
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream);
+    
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      chunksRef.current.push(event.data);
+    };
+    
+    mediaRecorderRef.current.onstop = async () => {
+      const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+      chunksRef.current = [];
+      
+      // Send to transcription API
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
+      
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const { text } = await response.json();
+      onTranscription(text);
+    };
+    
+    mediaRecorderRef.current.start();
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
+  };
+
+  return (
+    <button 
+      onMouseDown={startRecording}
+      onMouseUp={stopRecording}
+      className={`p-4 rounded-full ${isRecording ? 'bg-red-500' : 'bg-blue-500'} text-white`}
+    >
+      {isRecording ? '🔴 Recording...' : '🎤 Hold to Talk'}
+    </button>
+  );
+}
+```
+
+### 5.3 Main App Component
+```javascript
+// pages/index.js
+import { useState } from 'react';
+import PersonaSelector from '../components/PersonaSelector';
+import ConversationInterface from '../components/ConversationInterface';
+import FeedbackDisplay from '../components/FeedbackDisplay';
+
+export default function Home() {
+  const [gameState, setGameState] = useState('setup'); // setup, conversation, feedback
+  const [selectedPersona, setSelectedPersona] = useState(null);
+  const [selectedScenario, setSelectedScenario] = useState(null);
+  const [conversationHistory, setConversationHistory] = useState([]);
+  const [sessionFeedback, setSessionFeedback] = useState(null);
+
+  const startSession = () => {
+    setGameState('conversation');
+    setConversationHistory([]);
+  };
+
+  const endSession = async () => {
+    // Generate feedback
+    const response = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transcript: conversationHistory,
+        persona: selectedPersona,
+        scenario: selectedScenario
+      })
+    });
+    
+    const { feedback } = await response.json();
+    setSessionFeedback(feedback);
+    setGameState('feedback');
+  };
+
+  const resetApp = () => {
+    setGameState('setup');
+    setSelectedPersona(null);
+    setSelectedScenario(null);
+    setConversationHistory([]);
+    setSessionFeedback(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-3xl font-bold text-center mb-8">AI Sales Practice Tool</h1>
+      
+      {gameState === 'setup' && (
+        <PersonaSelector 
+          onPersonaSelect={setSelectedPersona}
+          onScenarioSelect={setSelectedScenario}
+          onStart={startSession}
+          selectedPersona={selectedPersona}
+          selectedScenario={selectedScenario}
+        />
+      )}
+      
+      {gameState === 'conversation' && (
+        <ConversationInterface
+          persona={selectedPersona}
+          scenario={selectedScenario}
+          conversationHistory={conversationHistory}
+          setConversationHistory={setConversationHistory}
+          onEndSession={endSession}
+        />
+      )}
+      
+      {gameState === 'feedback' && (
+        <FeedbackDisplay
+          feedback={sessionFeedback}
+          transcript={conversationHistory}
+          onTryAgain={resetApp}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+## 6. Environment Setup
+
+### 6.1 Required Environment Variables
+```bash
+# .env.local
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+### 6.2 Package.json Dependencies
+```json
+{
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "openai": "^4.0.0",
+    "tailwindcss": "^3.0.0"
+  }
+}
+```
+
+## 7. Deployment
+
+### 7.1 Vercel Deployment
+1. Push code to GitHub
+2. Connect repository to Vercel
+3. Add OPENAI_API_KEY environment variable in Vercel dashboard
+4. Deploy automatically
+
+### 7.2 Total Build Time Estimate
+**2-3 days for a working MVP** with all core features:
+- Day 1: Setup project, build persona selector and basic UI
+- Day 2: Implement voice recording, OpenAI integration, conversation flow
+- Day 3: Add feedback generation, polish UI, deploy
+
+This simplified version removes all complexity around user management, databases, and advanced features while keeping the core value proposition intact.

@@ -1,0 +1,66 @@
+# AI Sales Practice Tool - Implementation Plan
+
+## PHASE 1: PROJECT SETUP & FOUNDATION
+[ ] 1. Initialize Next.js project with required dependencies (next, react, openai, tailwindcss)
+[ ] 2. Set up project structure with pages/, components/, and lib/ directories  
+[ ] 3. Configure Tailwind CSS and basic styling setup
+[ ] 21. Set up environment variables (.env.local with OPENAI_API_KEY)
+
+## PHASE 2: CORE LIBRARIES & DATA
+[ ] 4. Create lib/personas.js with the 3 customer personas (Skeptical Steve, Busy Betty, Technical Tom)
+[ ] 5. Create lib/scenarios.js with scenario definitions (Cold Call, Product Demo, Objection Handling)
+[ ] 6. Create lib/openai.js for OpenAI API integration and helper functions
+
+## PHASE 3: REACT COMPONENTS
+[ ] 7. Build PersonaSelector component with persona and scenario selection UI
+[ ] 8. Build AudioRecorder component with hold-to-talk functionality
+[ ] 9. Build ConversationInterface component for the main chat UI
+[ ] 10. Build FeedbackDisplay component to show session results and transcript
+
+## PHASE 4: API ROUTES (BACKEND)
+[ ] 11. Create pages/api/transcribe.js API route for speech-to-text using Whisper
+[ ] 12. Create pages/api/chat.js API route for AI conversation responses
+[ ] 13. Create pages/api/feedback.js API route for generating session feedback
+
+## PHASE 5: MAIN APPLICATION
+[ ] 14. Build main pages/index.js with state management and app flow
+[ ] 15. Implement browser TTS (Text-to-Speech) for AI voice responses
+[ ] 16. Add localStorage integration for session data persistence
+
+## PHASE 6: TESTING & VALIDATION
+[ ] 17. Test voice recording and transcription functionality
+[ ] 18. Test AI conversation flow with all personas and scenarios
+[ ] 19. Test feedback generation and display
+
+## PHASE 7: POLISH & DEPLOYMENT
+[ ] 20. Polish UI/UX and responsive design
+[ ] 22. Deploy to Vercel and configure environment variables
+
+## ARCHITECTURE OVERVIEW
+- **Frontend**: Single React/Next.js page with state management
+- **AI**: OpenAI GPT-4 for conversations, Whisper for speech-to-text
+- **Speech**: Browser TTS for AI voice output
+- **Storage**: Browser localStorage (no database needed)
+- **Hosting**: Vercel free tier
+
+## KEY PERSONAS TO IMPLEMENT
+1. **Skeptical Steve**: Price-focused, asks tough questions, needs strong proof
+2. **Busy Betty**: Always in hurry, wants quick answers, fast decision-maker  
+3. **Technical Tom**: Detailed technical questions, specs-focused
+
+## SCENARIOS TO SUPPORT
+1. **Cold Call**: Introducing yourself and product
+2. **Product Demo**: Showing product features/benefits
+3. **Objection Handling**: Customer has concerns to address
+
+## ESTIMATED TIMELINE
+- **Day 1**: Phases 1-2 (Setup, libraries, personas)
+- **Day 2**: Phases 3-4 (Components, API routes) 
+- **Day 3**: Phases 5-7 (Integration, testing, deployment)
+
+## SUCCESS CRITERIA
+- [x] User can select persona and scenario
+- [x] Voice recording works with hold-to-talk button
+- [x] AI responds appropriately in character
+- [x] Session generates meaningful feedback with transcript
+- [x] Entire flow works end-to-end without accounts/login
