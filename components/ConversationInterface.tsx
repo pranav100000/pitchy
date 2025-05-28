@@ -110,7 +110,55 @@ export default function ConversationInterface({
     }
   };
 
-  const speakText = (text: string) => {
+  const speakText = async (text: string) => {
+    if (voiceQuality === 'premium') {
+      await speakWithPremiumTTS(text);
+    } else {
+      speakWithBrowserTTS(text);
+    }
+  };
+
+  const speakWithPremiumTTS = async (text: string) => {
+    try {
+      setIsAISpeaking(true);
+      
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          text, 
+          persona: persona.id 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('TTS failed');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.onended = () => {
+          setIsAISpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        audioRef.current.onerror = () => {
+          setIsAISpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.error('Premium TTS error:', error);
+      setIsAISpeaking(false);
+      // Fallback to browser TTS
+      speakWithBrowserTTS(text);
+    }
+  };
+
+  const speakWithBrowserTTS = (text: string) => {
     if ('speechSynthesis' in window) {
       // Cancel any ongoing speech
       speechSynthesis.cancel();
@@ -191,8 +239,12 @@ export default function ConversationInterface({
   const stopAISpeech = () => {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
-      setIsAISpeaking(false);
     }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsAISpeaking(false);
   };
 
   return (
@@ -202,10 +254,40 @@ export default function ConversationInterface({
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Practicing with: {persona.avatar} {persona.name}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-3">
           Scenario: {scenario.icon} {scenario.name}
         </p>
+        
+        {/* Voice Quality Selector */}
+        <div className="flex items-center justify-center space-x-4 text-sm">
+          <span className="text-gray-600">Voice Quality:</span>
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setVoiceQuality('browser')}
+              className={`px-3 py-1 rounded-md transition-colors ${
+                voiceQuality === 'browser'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Standard (Free)
+            </button>
+            <button
+              onClick={() => setVoiceQuality('premium')}
+              className={`px-3 py-1 rounded-md transition-colors ${
+                voiceQuality === 'premium'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Premium (HD)
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Hidden audio element for premium TTS */}
+      <audio ref={audioRef} style={{ display: 'none' }} />
 
       {/* Conversation Display */}
       <div 

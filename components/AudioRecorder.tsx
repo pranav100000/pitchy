@@ -8,6 +8,7 @@ interface AudioRecorderProps {
 export default function AudioRecorder({ onTranscription, disabled = false }: AudioRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [recordingMode, setRecordingMode] = useState<'hold' | 'click'>('hold');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
 
@@ -53,6 +54,14 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
     }
   };
 
+  const toggleRecording = async () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      await startRecording();
+    }
+  };
+
   const sendAudioForTranscription = async (audioBlob: Blob) => {
     try {
       const formData = new FormData();
@@ -83,8 +92,14 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
 
   const getButtonText = () => {
     if (isProcessing) return '🔄 Processing...';
-    if (isRecording) return '🔴 Release to Send';
-    return '🎤 Hold to Talk';
+    
+    if (recordingMode === 'click') {
+      if (isRecording) return '🔴 Click to Stop';
+      return '🎤 Click to Talk';
+    } else {
+      if (isRecording) return '🔴 Release to Send';
+      return '🎤 Hold to Talk';
+    }
   };
 
   const getButtonStyle = () => {
@@ -99,12 +114,40 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
 
   return (
     <div className="flex flex-col items-center space-y-4">
+      {/* Recording Mode Selector */}
+      <div className="flex bg-gray-100 rounded-lg p-1 text-sm">
+        <button
+          onClick={() => setRecordingMode('hold')}
+          className={`px-3 py-1 rounded-md transition-colors ${
+            recordingMode === 'hold'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Hold to Talk
+        </button>
+        <button
+          onClick={() => setRecordingMode('click')}
+          className={`px-3 py-1 rounded-md transition-colors ${
+            recordingMode === 'click'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Click to Talk
+        </button>
+      </div>
+
       <button
-        onMouseDown={startRecording}
-        onMouseUp={stopRecording}
-        onMouseLeave={stopRecording} // Handle case where mouse leaves button while holding
-        onTouchStart={startRecording}
-        onTouchEnd={stopRecording}
+        {...(recordingMode === 'hold' ? {
+          onMouseDown: startRecording,
+          onMouseUp: stopRecording,
+          onMouseLeave: stopRecording,
+          onTouchStart: startRecording,
+          onTouchEnd: stopRecording,
+        } : {
+          onClick: toggleRecording,
+        })}
         disabled={disabled || isProcessing}
         className={`
           px-8 py-4 text-lg font-semibold text-white rounded-full 
@@ -119,7 +162,9 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
       {isRecording && (
         <div className="flex items-center space-x-2 text-red-600 animate-pulse">
           <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <span className="text-sm font-medium">Recording...</span>
+          <span className="text-sm font-medium">
+            {recordingMode === 'click' ? 'Recording... (Click button to stop)' : 'Recording...'}
+          </span>
         </div>
       )}
       
@@ -131,7 +176,10 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
       )}
       
       <p className="text-sm text-gray-600 text-center max-w-sm">
-        Hold the button and speak clearly. Release when finished.
+        {recordingMode === 'hold' 
+          ? 'Hold the button and speak clearly. Release when finished.'
+          : 'Click to start recording, speak clearly, then click again to stop.'
+        }
       </p>
     </div>
   );
