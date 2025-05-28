@@ -9,6 +9,7 @@ interface ConversationInterfaceProps {
   conversationHistory: ConversationExchange[];
   setConversationHistory: (history: ConversationExchange[]) => void;
   onEndSession: () => void;
+  voiceQuality: 'browser' | 'premium';
 }
 
 export default function ConversationInterface({
@@ -16,11 +17,11 @@ export default function ConversationInterface({
   scenario,
   conversationHistory,
   setConversationHistory,
-  onEndSession
+  onEndSession,
+  voiceQuality
 }: ConversationInterfaceProps) {
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [isProcessingResponse, setIsProcessingResponse] = useState(false);
-  const [voiceQuality, setVoiceQuality] = useState<'browser' | 'premium'>('browser');
   const conversationRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -258,31 +259,9 @@ export default function ConversationInterface({
           Scenario: {scenario.icon} {scenario.name}
         </p>
         
-        {/* Voice Quality Selector */}
-        <div className="flex items-center justify-center space-x-4 text-sm">
-          <span className="text-gray-600">Voice Quality:</span>
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setVoiceQuality('browser')}
-              className={`px-3 py-1 rounded-md transition-colors ${
-                voiceQuality === 'browser'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Standard (Free)
-            </button>
-            <button
-              onClick={() => setVoiceQuality('premium')}
-              className={`px-3 py-1 rounded-md transition-colors ${
-                voiceQuality === 'premium'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Premium (HD)
-            </button>
-          </div>
+        {/* Voice Quality Display */}
+        <div className="text-sm text-gray-600">
+          Using <strong>{voiceQuality === 'premium' ? 'Premium HD' : 'Standard'}</strong> voice quality
         </div>
       </div>
 

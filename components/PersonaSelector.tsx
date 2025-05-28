@@ -5,17 +5,21 @@ import { Persona, Scenario } from '../lib/types';
 interface PersonaSelectorProps {
   onPersonaSelect: (persona: Persona) => void;
   onScenarioSelect: (scenario: Scenario) => void;
+  onVoiceQualitySelect: (quality: 'browser' | 'premium') => void;
   onStart: () => void;
   selectedPersona: Persona | null;
   selectedScenario: Scenario | null;
+  selectedVoiceQuality: 'browser' | 'premium';
 }
 
 export default function PersonaSelector({ 
   onPersonaSelect, 
   onScenarioSelect, 
+  onVoiceQualitySelect,
   onStart, 
   selectedPersona, 
-  selectedScenario 
+  selectedScenario,
+  selectedVoiceQuality
 }: PersonaSelectorProps) {
   const personas = getAllPersonas();
   const scenarios = getAllScenarios();
@@ -97,6 +101,62 @@ export default function PersonaSelector({
         </div>
       </div>
 
+      {/* Voice Quality Selection */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          Choose Voice Quality:
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div
+            onClick={() => onVoiceQualitySelect('browser')}
+            className={`
+              cursor-pointer p-6 rounded-lg border-2 transition-all duration-200
+              ${selectedVoiceQuality === 'browser'
+                ? 'border-purple-500 bg-purple-50 shadow-lg'
+                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+              }
+            `}
+          >
+            <div className="text-center">
+              <div className="text-4xl mb-3">🔊</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Standard Voice
+              </h3>
+              <p className="text-gray-600 text-sm mb-3">
+                Enhanced browser text-to-speech with persona-specific tuning
+              </p>
+              <div className="text-green-600 font-medium text-sm">
+                ✓ Free • ✓ Fast • ✓ No API usage
+              </div>
+            </div>
+          </div>
+
+          <div
+            onClick={() => onVoiceQualitySelect('premium')}
+            className={`
+              cursor-pointer p-6 rounded-lg border-2 transition-all duration-200
+              ${selectedVoiceQuality === 'premium'
+                ? 'border-purple-500 bg-purple-50 shadow-lg'
+                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+              }
+            `}
+          >
+            <div className="text-center">
+              <div className="text-4xl mb-3">🎙️</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Premium HD Voice
+              </h3>
+              <p className="text-gray-600 text-sm mb-3">
+                Studio-quality AI voices with unique persona characteristics
+              </p>
+              <div className="text-blue-600 font-medium text-sm">
+                ✓ HD Quality • ✓ Persona Voices • ⚡ Requires OpenAI API
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Start Button */}
       <div className="text-center">
         <button
@@ -116,7 +176,8 @@ export default function PersonaSelector({
         {selectedPersona && selectedScenario && (
           <div className="mt-4 text-gray-600">
             Ready to practice <strong>{selectedScenario.name}</strong> with{' '}
-            <strong>{selectedPersona.name}</strong>
+            <strong>{selectedPersona.name}</strong> using{' '}
+            <strong>{selectedVoiceQuality === 'premium' ? 'Premium HD' : 'Standard'}</strong> voice
           </div>
         )}
       </div>

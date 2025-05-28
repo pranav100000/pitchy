@@ -9,6 +9,7 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState>('setup');
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const [selectedVoiceQuality, setSelectedVoiceQuality] = useState<'browser' | 'premium'>('premium');
   const [conversationHistory, setConversationHistory] = useState<ConversationExchange[]>([]);
   const [sessionFeedback, setSessionFeedback] = useState<SessionFeedback | null>(null);
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);
@@ -62,6 +63,7 @@ export default function Home() {
     setGameState('setup');
     setSelectedPersona(null);
     setSelectedScenario(null);
+    setSelectedVoiceQuality('premium');
     setConversationHistory([]);
     setSessionFeedback(null);
   };
@@ -106,9 +108,11 @@ export default function Home() {
           <PersonaSelector 
             onPersonaSelect={setSelectedPersona}
             onScenarioSelect={setSelectedScenario}
+            onVoiceQualitySelect={setSelectedVoiceQuality}
             onStart={startSession}
             selectedPersona={selectedPersona}
             selectedScenario={selectedScenario}
+            selectedVoiceQuality={selectedVoiceQuality}
           />
         )}
         
@@ -119,6 +123,7 @@ export default function Home() {
             conversationHistory={conversationHistory}
             setConversationHistory={setConversationHistory}
             onEndSession={endSession}
+            voiceQuality={selectedVoiceQuality}
           />
         )}
         
