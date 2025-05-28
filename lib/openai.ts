@@ -24,7 +24,7 @@ export async function transcribeAudio(audioFile: File): Promise<TranscriptionRes
 export async function generateAIResponse(messages: ChatCompletionMessageParam[]): Promise<OpenAIResponse> {
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4.5-preview',
       messages: messages,
       max_tokens: 150,
       temperature: 0.8,
@@ -50,7 +50,7 @@ export async function generateAIResponse(messages: ChatCompletionMessageParam[])
 export async function generateSessionFeedback(feedbackPrompt: string): Promise<FeedbackResponse> {
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4.5-preview',
       messages: [
         {
           role: 'user',
@@ -68,7 +68,7 @@ export async function generateSessionFeedback(feedbackPrompt: string): Promise<F
     
     // Parse the feedback into score and bullet points
     const lines = feedbackText.split('\n').filter(line => line.trim());
-    let score = 75; // Default score
+    let score = 25; // Default harsh score for poor conversations
     let feedback = [];
     
     // Extract score
@@ -94,10 +94,10 @@ export async function generateSessionFeedback(feedbackPrompt: string): Promise<F
     // Fallback if parsing fails
     if (feedback.length === 0) {
       feedback = [
-        'Good effort in engaging with the customer persona',
-        'Consider asking more qualifying questions',
-        'Work on addressing objections more directly',
-        'Practice active listening and responding to customer cues'
+        'Failed to extract meaningful feedback from conversation analysis',
+        'This suggests the conversation was too brief or unfocused to evaluate',
+        'Need significantly more substantive interaction with the customer',
+        'Try having a complete conversation before expecting useful feedback'
       ];
     }
     

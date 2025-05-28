@@ -19,17 +19,22 @@ export default function FeedbackDisplay({
   const [showFullTranscript, setShowFullTranscript] = useState(false);
 
   const getScoreColor = (score: number) => {
-    if (score >= 85) return 'text-green-600 bg-green-50 border-green-200';
-    if (score >= 70) return 'text-blue-600 bg-blue-50 border-blue-200';
-    if (score >= 55) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-red-600 bg-red-50 border-red-200';
+    if (score >= 90) return 'text-green-600 bg-green-50 border-green-200';
+    if (score >= 80) return 'text-blue-600 bg-blue-50 border-blue-200';
+    if (score >= 70) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    if (score >= 60) return 'text-orange-600 bg-orange-50 border-orange-200';
+    if (score >= 40) return 'text-red-600 bg-red-50 border-red-200';
+    return 'text-red-800 bg-red-100 border-red-300';
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 85) return 'Excellent!';
-    if (score >= 70) return 'Good Job!';
-    if (score >= 55) return 'Keep Practicing';
-    return 'Needs Improvement';
+    if (score >= 90) return 'Outstanding!';
+    if (score >= 80) return 'Strong Performance';
+    if (score >= 70) return 'Decent Attempt';
+    if (score >= 60) return 'Weak Performance';
+    if (score >= 40) return 'Poor Performance';
+    if (score >= 20) return 'Very Poor';
+    return 'Failure';
   };
 
   return (

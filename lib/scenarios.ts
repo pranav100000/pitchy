@@ -107,7 +107,7 @@ export function buildFeedbackPrompt(
     `Salesperson: ${exchange.user}\n${persona.name}: ${exchange.assistant}`
   ).join('\n\n');
 
-  return `Please analyze this sales conversation and provide constructive feedback.
+  return `You are a BRUTAL but HONEST sales coach analyzing this conversation. Your job is to give harsh, realistic feedback that will actually help improve sales skills. Do NOT sugarcoat or give participation trophies.
 
 SCENARIO: ${scenario.name} - ${scenario.description}
 CUSTOMER PERSONA: ${persona.name} - ${persona.description}
@@ -115,22 +115,42 @@ CUSTOMER PERSONA: ${persona.name} - ${persona.description}
 CONVERSATION TRANSCRIPT:
 ${transcript}
 
+SCORING GUIDELINES (be harsh and realistic):
+- 90-100: Exceptional performance, would definitely close the deal
+- 80-89: Strong performance with minor issues
+- 70-79: Decent attempt but clear missed opportunities  
+- 60-69: Weak performance, major fundamental issues
+- 50-59: Poor performance, customer likely annoyed/disengaged
+- 40-49: Very poor, customer probably hung up or lost interest
+- 30-39: Terrible performance, completely missed the mark
+- 20-29: Disaster - actively drove customer away
+- 10-19: So bad it's almost insulting to the customer
+- 0-9: Did they even try? Complete failure
+
+JUDGE HARSHLY ON:
+- Did they actually understand the persona's needs/concerns?
+- Were they prepared or just winging it?
+- Did they ask qualifying questions or just pitch?
+- How well did they handle objections?
+- Was their approach appropriate for this specific customer type?
+- Did they build rapport or sound like a robot?
+- Were they listening or just waiting to talk?
+
+SPECIAL CASES:
+- If transcript is empty or minimal (under 3 exchanges): Score 0-20
+- If salesperson said almost nothing: Score 0-30  
+- If they ignored obvious customer cues: Deduct 20+ points
+- If they were generic instead of persona-specific: Major deduction
+
 Please provide feedback in this exact format:
 
-SCORE: [Number from 1-100]
+SCORE: [Number from 0-100, be harsh and realistic]
 
 FEEDBACK:
-• [Specific strength or area done well]
-• [Specific area for improvement with actionable advice]
-• [Another specific area for improvement or strength]
-• [Final key insight or recommendation]
+• [Brutal honest critique of biggest failure/weakness]
+• [Another major area that sucked with specific examples]
+• [What they completely missed or screwed up]
+• [One thing they did okay, if anything, but still needs work]
 
-Focus on:
-1. How well the salesperson adapted to the ${persona.name} persona
-2. Effectiveness in the ${scenario.name} scenario
-3. Communication skills and approach
-4. Specific improvements with actionable advice
-5. What they did well that they should continue
-
-Keep feedback constructive, specific, and actionable. Avoid generic advice.`;
+BE SPECIFIC. USE EXAMPLES FROM THE CONVERSATION. Don't give generic advice. If they failed, tell them exactly why and how. No participation trophies - only give high scores for genuinely excellent performance that would actually close deals.`;
 }

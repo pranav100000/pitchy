@@ -70,12 +70,29 @@ export default async function handler(
         feedback: {
           score: 0,
           feedback: [
-            'No conversation recorded to analyze',
-            'Try having a longer conversation for better feedback',
-            'Practice engaging with the customer persona',
-            'Use the voice recording feature to interact'
+            'Complete failure: No conversation attempted whatsoever',
+            'You cannot learn sales without actually talking to the customer',
+            'This is like showing up to a sales meeting and saying nothing',
+            'Start over and actually engage in a real conversation'
           ],
-          rawFeedback: 'No conversation data available for analysis.'
+          rawFeedback: 'SCORE: 0 - No conversation data available for analysis. Complete failure to engage.'
+        }
+      });
+    }
+
+    // Handle minimal conversation (less than 2 meaningful exchanges)
+    if (transcript.length < 2) {
+      return res.status(200).json({
+        success: true,
+        feedback: {
+          score: 15,
+          feedback: [
+            'Pathetically short conversation - barely tried to engage',
+            'One or two sentences is not a sales conversation',
+            'Real customers need more than surface-level interaction',
+            'Practice having complete conversations, not just quick exchanges'
+          ],
+          rawFeedback: 'SCORE: 15 - Extremely minimal conversation. Insufficient effort to evaluate sales skills.'
         }
       });
     }
