@@ -359,6 +359,16 @@ export default function ConversationInterface({
 
         {conversationHistory.map((exchange, index) => (
           <div key={index} className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+            {exchange.user && (
+              <div className="flex items-start space-x-2 sm:space-x-3 justify-end">
+                <div className="bg-blue-500 text-white rounded-lg p-3 sm:p-4 max-w-[85%] sm:max-w-3xl">
+                  <div className="font-semibold mb-1 text-sm sm:text-base">You</div>
+                  <div className="text-sm sm:text-base leading-relaxed">{exchange.user}</div>
+                </div>
+                <div className="text-xl sm:text-2xl flex-shrink-0">👤</div>
+              </div>
+            )}
+            
             {exchange.assistant && (
               <div className="flex items-start space-x-2 sm:space-x-3">
                 <div className="text-xl sm:text-2xl flex-shrink-0">{persona.avatar}</div>
@@ -368,16 +378,6 @@ export default function ConversationInterface({
                   </div>
                   <div className="text-gray-800 text-sm sm:text-base leading-relaxed">{exchange.assistant}</div>
                 </div>
-              </div>
-            )}
-            
-            {exchange.user && (
-              <div className="flex items-start space-x-2 sm:space-x-3 justify-end">
-                <div className="bg-blue-500 text-white rounded-lg p-3 sm:p-4 max-w-[85%] sm:max-w-3xl">
-                  <div className="font-semibold mb-1 text-sm sm:text-base">You</div>
-                  <div className="text-sm sm:text-base leading-relaxed">{exchange.user}</div>
-                </div>
-                <div className="text-xl sm:text-2xl flex-shrink-0">👤</div>
               </div>
             )}
           </div>
