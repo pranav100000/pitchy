@@ -1,4 +1,7 @@
 import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface AudioRecorderProps {
   onTranscription: (text: string) => void;
@@ -128,43 +131,39 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
     }
   };
 
-  const getButtonStyle = () => {
+  const getButtonVariant = () => {
     if (disabled || isProcessing) {
-      return 'bg-gray-400 cursor-not-allowed';
+      return 'secondary';
     }
     if (isRecording) {
-      return 'bg-red-500 hover:bg-red-600';
+      return 'destructive';
     }
-    return 'bg-blue-500 hover:bg-blue-600';
+    return 'default';
   };
 
   return (
     <div className="flex flex-col items-center space-y-4">
       {/* Recording Mode Selector */}
-      <div className="flex bg-gray-100 rounded-lg p-1 text-sm">
-        <button
+      <div className="flex bg-muted rounded-lg p-1 text-sm">
+        <Button
+          variant={recordingMode === 'hold' ? 'default' : 'ghost'}
+          size="sm"
           onClick={() => setRecordingMode('hold')}
-          className={`px-3 py-1 rounded-md transition-colors ${
-            recordingMode === 'hold'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
+          className="text-xs px-3 py-1 h-8"
         >
           Hold to Talk
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={recordingMode === 'click' ? 'default' : 'ghost'}
+          size="sm"
           onClick={() => setRecordingMode('click')}
-          className={`px-3 py-1 rounded-md transition-colors ${
-            recordingMode === 'click'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
+          className="text-xs px-3 py-1 h-8"
         >
           Click to Talk
-        </button>
+        </Button>
       </div>
 
-      <button
+      <Button
         {...(recordingMode === 'hold' ? {
           onMouseDown: startRecording,
           onMouseUp: stopRecording,
@@ -185,40 +184,56 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
           onClick: toggleRecording,
         })}
         disabled={disabled || isProcessing}
-        className={`
-          px-8 py-6 text-lg font-semibold text-white rounded-full 
+        variant={getButtonVariant()}
+        size="lg"
+        className="
+          text-lg font-semibold rounded-full 
           transition-all duration-200 shadow-lg hover:shadow-xl
           active:scale-95 select-none touch-manipulation
           min-h-[4rem] min-w-[12rem]
-          ${getButtonStyle()}
-        `}
+        "
         style={{ touchAction: 'manipulation' }}
       >
         {getButtonText()}
-      </button>
+      </Button>
       
       {isRecording && (
-        <div className="flex items-center space-x-2 text-red-600 animate-pulse">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <span className="text-sm font-medium">
-            {recordingMode === 'click' ? 'Recording... (Click button to stop)' : 'Recording...'}
-          </span>
-        </div>
+        <Card className="border-destructive/20 bg-destructive/5">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-center space-x-2 text-destructive animate-pulse">
+              <div className="w-3 h-3 bg-destructive rounded-full"></div>
+              <span className="text-sm font-medium">
+                {recordingMode === 'click' ? 'Recording... (Click button to stop)' : 'Recording...'}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
       )}
       
       {isProcessing && (
-        <div className="flex items-center space-x-2 text-blue-600">
-          <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-          <span className="text-sm font-medium">Processing your speech...</span>
-        </div>
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-center space-x-2 text-primary">
+              <div className="w-3 h-3 bg-primary rounded-full animate-bounce"></div>
+              <span className="text-sm font-medium">Processing your speech...</span>
+            </div>
+          </CardContent>
+        </Card>
       )}
       
-      <p className="text-sm text-gray-600 text-center max-w-sm">
-        {recordingMode === 'hold' 
-          ? 'Hold the button and speak clearly. Release when finished.'
-          : 'Click to start recording, speak clearly, then click again to stop.'
-        }
-      </p>
+      <Card className="max-w-sm">
+        <CardContent className="p-4 text-center">
+          <Badge variant="outline" className="mb-2">
+            {recordingMode === 'hold' ? '✋ Hold Mode' : '💆 Click Mode'}
+          </Badge>
+          <p className="text-sm text-muted-foreground">
+            {recordingMode === 'hold' 
+              ? 'Hold the button and speak clearly. Release when finished.'
+              : 'Click to start recording, speak clearly, then click again to stop.'
+            }
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

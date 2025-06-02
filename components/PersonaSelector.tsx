@@ -1,6 +1,9 @@
 import { getAllPersonas } from '../lib/personas';
 import { getAllScenarios } from '../lib/scenarios';
 import { Persona, Scenario } from '../lib/types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface PersonaSelectorProps {
   onPersonaSelect: (persona: Persona) => void;
@@ -27,159 +30,168 @@ export default function PersonaSelector({
   const canStart = selectedPersona && selectedScenario;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 safe-area-inset">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 safe-area-inset">
       <div className="text-center mb-8 sm:mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-          AI Sales Practice Tool
+        <h1 className="text-3xl sm:text-4xl font-bold mb-4">
+          🎯 AI Sales Practice Tool
         </h1>
-        <p className="text-lg sm:text-xl text-gray-600">
-          Practice your sales skills with realistic AI customer personas
+        <p className="text-lg sm:text-xl text-muted-foreground">
+          Master your sales skills with realistic AI customer personas
         </p>
       </div>
 
       {/* Persona Selection */}
       <div className="mb-8 sm:mb-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
-          Choose Your Customer:
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
+          👥 Choose Your Customer
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {personas.map((persona) => (
-            <div
+            <Card
               key={persona.id}
+              className={`cursor-pointer transition-all duration-200 touch-manipulation hover:shadow-lg ${
+                selectedPersona?.id === persona.id
+                  ? 'ring-2 ring-primary shadow-lg'
+                  : 'hover:shadow-md'
+              }`}
               onClick={() => onPersonaSelect(persona)}
-              className={`
-                cursor-pointer p-4 sm:p-6 rounded-lg border-2 transition-all duration-200 touch-manipulation
-                ${selectedPersona?.id === persona.id
-                  ? 'border-blue-500 bg-blue-50 shadow-lg'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-                }
-              `}
             >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{persona.avatar}</div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                  {persona.name}
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+              <CardHeader className="text-center pb-4">
+                <div className="text-4xl sm:text-5xl mb-2">{persona.avatar}</div>
+                <CardTitle className="text-lg sm:text-xl">{persona.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center pt-0">
+                <CardDescription className="text-sm leading-relaxed">
                   {persona.description}
-                </p>
-              </div>
-            </div>
+                </CardDescription>
+                {selectedPersona?.id === persona.id && (
+                  <Badge className="mt-3">Selected</Badge>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
 
       {/* Scenario Selection */}
       <div className="mb-8 sm:mb-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
-          Choose Scenario:
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
+          🎬 Choose Your Scenario
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {scenarios.map((scenario) => (
-            <div
+            <Card
               key={scenario.id}
+              className={`cursor-pointer transition-all duration-200 touch-manipulation hover:shadow-lg ${
+                selectedScenario?.id === scenario.id
+                  ? 'ring-2 ring-green-500 shadow-lg'
+                  : 'hover:shadow-md'
+              }`}
               onClick={() => onScenarioSelect(scenario)}
-              className={`
-                cursor-pointer p-4 sm:p-6 rounded-lg border-2 transition-all duration-200 touch-manipulation
-                ${selectedScenario?.id === scenario.id
-                  ? 'border-green-500 bg-green-50 shadow-lg'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-                }
-              `}
             >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{scenario.icon}</div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                  {scenario.name}
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+              <CardHeader className="text-center pb-4">
+                <div className="text-4xl sm:text-5xl mb-2">{scenario.icon}</div>
+                <CardTitle className="text-lg sm:text-xl">{scenario.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center pt-0">
+                <CardDescription className="text-sm leading-relaxed">
                   {scenario.description}
-                </p>
-              </div>
-            </div>
+                </CardDescription>
+                {selectedScenario?.id === scenario.id && (
+                  <Badge variant="secondary" className="mt-3 bg-green-100 text-green-700">Selected</Badge>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
 
       {/* Voice Quality Selection */}
       <div className="mb-8 sm:mb-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
-          Choose Voice Quality:
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
+          🎵 Choose Voice Quality
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto">
-          <div
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+          <Card
+            className={`cursor-pointer transition-all duration-200 touch-manipulation hover:shadow-lg ${
+              selectedVoiceQuality === 'browser'
+                ? 'ring-2 ring-purple-500 shadow-lg'
+                : 'hover:shadow-md'
+            }`}
             onClick={() => onVoiceQualitySelect('browser')}
-            className={`
-              cursor-pointer p-4 sm:p-6 rounded-lg border-2 transition-all duration-200 touch-manipulation
-              ${selectedVoiceQuality === 'browser'
-                ? 'border-purple-500 bg-purple-50 shadow-lg'
-                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-              }
-            `}
           >
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🔊</div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Standard Voice
-              </h3>
-              <p className="text-gray-600 text-sm mb-3 leading-relaxed">
+            <CardHeader className="text-center pb-4">
+              <div className="text-4xl sm:text-5xl mb-2">🔊</div>
+              <CardTitle className="text-lg sm:text-xl">Standard Voice</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center pt-0">
+              <CardDescription className="text-sm mb-4 leading-relaxed">
                 Enhanced browser text-to-speech with persona-specific tuning
-              </p>
-              <div className="text-green-600 font-medium text-xs sm:text-sm">
-                ✓ Free • ✓ Fast • ✓ No API usage
+              </CardDescription>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Badge variant="secondary" className="bg-green-100 text-green-700">Free</Badge>
+                <Badge variant="secondary" className="bg-blue-100 text-blue-700">Fast</Badge>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-700">No API</Badge>
               </div>
-            </div>
-          </div>
+              {selectedVoiceQuality === 'browser' && (
+                <Badge className="mt-3">Selected</Badge>
+              )}
+            </CardContent>
+          </Card>
 
-          <div
+          <Card
+            className={`cursor-pointer transition-all duration-200 touch-manipulation hover:shadow-lg ${
+              selectedVoiceQuality === 'premium'
+                ? 'ring-2 ring-purple-500 shadow-lg'
+                : 'hover:shadow-md'
+            }`}
             onClick={() => onVoiceQualitySelect('premium')}
-            className={`
-              cursor-pointer p-4 sm:p-6 rounded-lg border-2 transition-all duration-200 touch-manipulation
-              ${selectedVoiceQuality === 'premium'
-                ? 'border-purple-500 bg-purple-50 shadow-lg'
-                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-              }
-            `}
           >
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🎙️</div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                Premium HD Voice
-              </h3>
-              <p className="text-gray-600 text-sm mb-3 leading-relaxed">
+            <CardHeader className="text-center pb-4">
+              <div className="text-4xl sm:text-5xl mb-2">🎙️</div>
+              <CardTitle className="text-lg sm:text-xl">Premium HD Voice</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center pt-0">
+              <CardDescription className="text-sm mb-4 leading-relaxed">
                 Studio-quality AI voices with unique persona characteristics
-              </p>
-              <div className="text-blue-600 font-medium text-xs sm:text-sm">
-                ✓ HD Quality • ✓ Persona Voices • ⚡ Requires OpenAI API
+              </CardDescription>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">HD Quality</Badge>
+                <Badge variant="secondary" className="bg-indigo-100 text-indigo-700">Persona Voices</Badge>
+                <Badge variant="outline">Requires API</Badge>
               </div>
-            </div>
-          </div>
+              {selectedVoiceQuality === 'premium' && (
+                <Badge className="mt-3">Selected</Badge>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Start Button */}
       <div className="text-center pb-safe">
-        <button
+        <Button
           onClick={onStart}
           disabled={!canStart}
-          className={`
-            px-8 sm:px-12 py-3 sm:py-4 text-lg sm:text-xl font-semibold rounded-lg transition-all duration-200 touch-manipulation
-            min-h-[3rem] sm:min-h-[3.5rem]
-            ${canStart
-              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }
-          `}
+          size="xl"
+          className="touch-manipulation min-h-[3rem] sm:min-h-[3.5rem] shadow-lg hover:shadow-xl"
         >
-          {canStart ? 'Start Practice Session' : 'Select Persona & Scenario'}
-        </button>
+          {canStart ? '🚀 Start Practice Session' : '📋 Select Persona & Scenario'}
+        </Button>
         
         {selectedPersona && selectedScenario && (
-          <div className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
-            Ready to practice <strong>{selectedScenario.name}</strong> with{' '}
-            <strong>{selectedPersona.name}</strong> using{' '}
-            <strong>{selectedVoiceQuality === 'premium' ? 'Premium HD' : 'Standard'}</strong> voice
-          </div>
+          <Card className="mt-6 max-w-2xl mx-auto">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <Badge variant="outline" className="mb-3">Ready to Start</Badge>
+                <p className="text-sm sm:text-base leading-relaxed">
+                  Practice <strong>{selectedScenario.name}</strong> with{' '}
+                  <strong>{selectedPersona.name}</strong> using{' '}
+                  <strong>{selectedVoiceQuality === 'premium' ? 'Premium HD' : 'Standard'}</strong> voice
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

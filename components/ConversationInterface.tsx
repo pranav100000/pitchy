@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import AudioRecorder from './AudioRecorder';
 import { Persona, Scenario, ConversationExchange } from '../lib/types';
 import { buildConversationPrompt } from '../lib/scenarios';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ConversationInterfaceProps {
   persona: Persona;
@@ -343,17 +347,20 @@ export default function ConversationInterface({
       <audio ref={audioRef} style={{ display: 'none' }} />
 
       {/* Conversation Display */}
-      <div 
-        ref={conversationRef}
-        className="flex-1 bg-white rounded-lg border border-gray-200 p-4 sm:p-6 overflow-y-auto mb-4 sm:mb-6 min-h-0"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
+      <Card className="flex-1 mb-4 sm:mb-6 min-h-0">
+        <ScrollArea 
+          ref={conversationRef}
+          className="h-full p-4 sm:p-6"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
         {conversationHistory.length === 0 && isProcessingResponse && (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-500">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p>{persona.name} is getting ready...</p>
-            </div>
+            <Card className="p-8">
+              <CardContent className="text-center pt-0">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">{persona.name} is getting ready...</p>
+              </CardContent>
+            </Card>
           </div>
         )}
 
@@ -362,21 +369,27 @@ export default function ConversationInterface({
             {exchange.assistant && (
               <div className="flex items-start space-x-2 sm:space-x-3">
                 <div className="text-xl sm:text-2xl flex-shrink-0">{persona.avatar}</div>
-                <div className="bg-gray-100 rounded-lg p-3 sm:p-4 max-w-[85%] sm:max-w-3xl">
-                  <div className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                    {persona.name}
-                  </div>
-                  <div className="text-gray-800 text-sm sm:text-base leading-relaxed">{exchange.assistant}</div>
-                </div>
+                <Card className="max-w-[85%] sm:max-w-3xl bg-muted/50">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" className="text-xs">{persona.name}</Badge>
+                    </div>
+                    <div className="text-sm sm:text-base leading-relaxed">{exchange.assistant}</div>
+                  </CardContent>
+                </Card>
               </div>
             )}
             
             {exchange.user && (
               <div className="flex items-start space-x-2 sm:space-x-3 justify-end">
-                <div className="bg-blue-500 text-white rounded-lg p-3 sm:p-4 max-w-[85%] sm:max-w-3xl">
-                  <div className="font-semibold mb-1 text-sm sm:text-base">You</div>
-                  <div className="text-sm sm:text-base leading-relaxed">{exchange.user}</div>
-                </div>
+                <Card className="max-w-[85%] sm:max-w-3xl bg-primary text-primary-foreground">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary" className="text-xs bg-primary-foreground text-primary">You</Badge>
+                    </div>
+                    <div className="text-sm sm:text-base leading-relaxed">{exchange.user}</div>
+                  </CardContent>
+                </Card>
                 <div className="text-xl sm:text-2xl flex-shrink-0">👤</div>
               </div>
             )}
@@ -386,49 +399,59 @@ export default function ConversationInterface({
         {isProcessingResponse && conversationHistory.length > 0 && (
           <div className="flex items-start space-x-3">
             <div className="text-2xl">{persona.avatar}</div>
-            <div className="bg-gray-100 rounded-lg p-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-              </div>
-            </div>
+            <Card className="bg-muted/50">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
-      </div>
+        </ScrollArea>
+      </Card>
 
       {/* AI Speaking Indicator */}
       {isAISpeaking && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
-          <div className="flex items-center justify-center space-x-2 flex-wrap">
-            <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="text-blue-700 font-medium text-sm sm:text-base">
-              {persona.name} is speaking...
-            </span>
-            <button
-              onClick={stopAISpeech}
-              className="ml-2 sm:ml-4 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 bg-white rounded border border-blue-200 touch-manipulation"
-            >
-              Stop
-            </button>
-          </div>
-        </div>
+        <Card className="mb-4 border-primary/20 bg-primary/5">
+          <CardContent className="p-4 text-center">
+            <div className="flex items-center justify-center space-x-2 flex-wrap">
+              <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+              <span className="text-primary font-medium text-sm sm:text-base">
+                {persona.name} is speaking...
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={stopAISpeech}
+                className="ml-2 sm:ml-4 touch-manipulation"
+              >
+                Stop
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Audio Controls */}
-      <div className="text-center space-y-4 pb-safe">
-        <AudioRecorder 
-          onTranscription={handleUserTranscription}
-          disabled={isProcessingResponse || isAISpeaking}
-        />
-        
-        <button
-          onClick={onEndSession}
-          className="px-6 py-3 text-sm sm:text-base font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors touch-manipulation min-h-[2.75rem]"
-        >
-          End Session
-        </button>
-      </div>
+      <Card className="pb-safe">
+        <CardContent className="p-4 text-center space-y-4">
+          <AudioRecorder 
+            onTranscription={handleUserTranscription}
+            disabled={isProcessingResponse || isAISpeaking}
+          />
+          
+          <Button
+            variant="outline"
+            onClick={onEndSession}
+            className="touch-manipulation min-h-[2.75rem]"
+          >
+            📊 End Session
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
