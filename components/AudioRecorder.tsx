@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface AudioRecorderProps {
   onTranscription: (text: string) => void;
@@ -11,6 +11,7 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
   const [recordingMode, setRecordingMode] = useState<'hold' | 'click'>('hold');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const startRecording = async () => {
     if (disabled || isProcessing) return;
@@ -23,6 +24,9 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
           autoGainControl: true
         }
       });
+      
+      // Store stream reference for cleanup
+      streamRef.current = stream;
       
       // Check for supported MIME types (Safari requires specific formats)
       let mimeType = 'audio/webm';
@@ -47,7 +51,10 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
         chunksRef.current = [];
         
         // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+        }
         
         if (audioBlob.size > 0) {
           setIsProcessing(true);
@@ -70,6 +77,73 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
       setIsRecording(false);
     }
   };
+
+  const cleanupAudioResources = () => {
+    console.log('🧹 Cleaning up audio resources...'); // Debug log
+    
+    // Stop the media recorder
+    if (mediaRecorderRef.current) {
+      if (mediaRecorderRef.current.state === 'recording') {
+        console.log('🛑 Stopping active recording...');
+        mediaRecorderRef.current.stop();
+      }
+      mediaRecorderRef.current = null;
+    }
+    
+    // Stop all tracks in the stream
+    if (streamRef.current) {
+      console.log('🎤 Stopping microphone stream...');
+      streamRef.current.getTracks().forEach(track => {
+        if (track.readyState === 'live') {
+          track.stop();
+          console.log(`🔇 Stopped track: ${track.kind}, state: ${track.readyState}`);
+        }
+      });
+      streamRef.current = null;
+    }
+    
+    // Reset state
+    setIsRecording(false);
+    setIsProcessing(false);
+    chunksRef.current = [];
+    
+    console.log('✅ Audio cleanup complete');
+  };
+
+  // Cleanup when component unmounts or disabled prop changes
+  useEffect(() => {
+    if (disabled) {
+      cleanupAudioResources();
+    }
+  }, [disabled]);
+
+  // Cleanup when component unmounts
+  useEffect(() => {
+    return () => {
+      cleanupAudioResources();
+    };
+  }, []);
+
+  // Additional cleanup on page unload/navigation
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      cleanupAudioResources();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        cleanupAudioResources();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const toggleRecording = async () => {
     if (isRecording) {
