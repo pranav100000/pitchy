@@ -16,8 +16,25 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
     if (disabled || isProcessing) return;
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      
+      // Check for supported MIME types (Safari requires specific formats)
+      let mimeType = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+        mimeType = 'audio/wav';
+      }
+      
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
       
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -26,7 +43,7 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
       };
       
       mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
         chunksRef.current = [];
         
         // Stop all tracks to release microphone
@@ -43,7 +60,7 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
       setIsRecording(true);
     } catch (error) {
       console.error('Error starting recording:', error);
-      alert('Could not access microphone. Please check permissions.');
+      alert('Could not access microphone. Please check permissions and try again.');
     }
   };
 
@@ -65,7 +82,16 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
   const sendAudioForTranscription = async (audioBlob: Blob) => {
     try {
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.wav');
+      
+      // Use appropriate file extension based on MIME type
+      let filename = 'recording.webm';
+      if (audioBlob.type.includes('mp4')) {
+        filename = 'recording.mp4';
+      } else if (audioBlob.type.includes('wav')) {
+        filename = 'recording.wav';
+      }
+      
+      formData.append('audio', audioBlob, filename);
       
       const response = await fetch('/api/transcribe', {
         method: 'POST',
@@ -143,18 +169,30 @@ export default function AudioRecorder({ onTranscription, disabled = false }: Aud
           onMouseDown: startRecording,
           onMouseUp: stopRecording,
           onMouseLeave: stopRecording,
-          onTouchStart: startRecording,
-          onTouchEnd: stopRecording,
+          onTouchStart: (e) => {
+            e.preventDefault();
+            startRecording();
+          },
+          onTouchEnd: (e) => {
+            e.preventDefault();
+            stopRecording();
+          },
+          onTouchCancel: (e) => {
+            e.preventDefault();
+            stopRecording();
+          }
         } : {
           onClick: toggleRecording,
         })}
         disabled={disabled || isProcessing}
         className={`
-          px-8 py-4 text-lg font-semibold text-white rounded-full 
+          px-8 py-6 text-lg font-semibold text-white rounded-full 
           transition-all duration-200 shadow-lg hover:shadow-xl
-          active:scale-95 select-none
+          active:scale-95 select-none touch-manipulation
+          min-h-[4rem] min-w-[12rem]
           ${getButtonStyle()}
         `}
+        style={{ touchAction: 'manipulation' }}
       >
         {getButtonText()}
       </button>
