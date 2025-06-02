@@ -20,6 +20,15 @@ export default async function handler(
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
+  // Check if OpenAI API key is available
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('OPENAI_API_KEY is not set in environment variables');
+    return res.status(500).json({ 
+      success: false, 
+      error: 'OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.' 
+    });
+  }
+
   try {
     const { messages }: ChatApiRequest = req.body;
 
