@@ -1,1 +1,83 @@
 @import "tailwindcss";
+
+/* Mobile-specific improvements */
+@supports (padding: max(0px)) {
+  .safe-area-inset {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Improve touch targets and accessibility */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile touch optimizations */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve text readability on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Better scrolling on mobile */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+  
+  /* Disable text selection on interactive elements */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Fix iOS Safari viewport height issues */
+@supports (-webkit-touch-callout: none) {
+  .ios-vh-fix {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Prevent zoom on input focus */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Hide scrollbars on mobile but keep functionality */
+@media (max-width: 768px) {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Better button states for touch devices */
+@media (hover: none) {
+  .hover\:bg-blue-600:hover {
+    background-color: rgb(37 99 235);
+  }
+  
+  .hover\:bg-red-600:hover {
+    background-color: rgb(220 38 38);
+  }
+}
