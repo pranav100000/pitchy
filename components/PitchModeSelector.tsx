@@ -1,29 +1,23 @@
-import { getAllPersonas } from '../lib/personas';
 import { getAllPitchLengths } from '../lib/pitchLengths';
-import { Persona, PitchLength } from '../lib/types';
+import { PitchLength } from '../lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface PitchModeSelectorProps {
-  onPersonaSelect: (persona: Persona) => void;
   onPitchLengthSelect: (pitchLength: PitchLength) => void;
   onStart: () => void;
-  selectedPersona: Persona | null;
   selectedPitchLength: PitchLength | null;
 }
 
 export default function PitchModeSelector({ 
-  onPersonaSelect, 
   onPitchLengthSelect,
   onStart, 
-  selectedPersona, 
   selectedPitchLength
 }: PitchModeSelectorProps) {
-  const personas = getAllPersonas();
   const pitchLengths = getAllPitchLengths();
 
-  const canStart = selectedPersona && selectedPitchLength;
+  const canStart = selectedPitchLength;
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 safe-area-inset">
@@ -32,41 +26,10 @@ export default function PitchModeSelector({
           🎯 Pitch Practice Mode
         </h1>
         <p className="text-lg sm:text-xl text-gray-600">
-          Deliver your sales pitch to AI customer personas and get detailed feedback
+          Deliver your sales pitch and get objective, detailed feedback on your presentation skills
         </p>
       </div>
 
-      {/* Target Audience Selection */}
-      <div className="mb-8 sm:mb-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
-          Choose Your Target Audience:
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {personas.map((persona) => (
-            <div
-              key={persona.id}
-              onClick={() => onPersonaSelect(persona)}
-              className={`
-                cursor-pointer p-4 sm:p-6 rounded-lg border-2 transition-all duration-200 touch-manipulation
-                ${selectedPersona?.id === persona.id
-                  ? 'border-blue-500 bg-blue-50 shadow-lg'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-                }
-              `}
-            >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">{persona.avatar}</div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-                  {persona.name}
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {persona.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Pitch Length Selection */}
       <div className="mb-8 sm:mb-12">
@@ -139,13 +102,13 @@ export default function PitchModeSelector({
             }
           `}
         >
-          {canStart ? 'Start Pitch Practice' : 'Select Audience & Length'}
+  {canStart ? 'Start Pitch Practice' : 'Select Pitch Length'}
         </button>
         
-        {selectedPersona && selectedPitchLength && (
+{selectedPitchLength && (
           <div className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
-            Ready to pitch to <strong>{selectedPersona.name}</strong> in{' '}
-            <strong>{selectedPitchLength.duration} seconds</strong> ({selectedPitchLength.name})
+            Ready to deliver your <strong>{selectedPitchLength.name}</strong> in{' '}
+            <strong>{selectedPitchLength.duration} seconds</strong>
           </div>
         )}
       </div>

@@ -69,7 +69,6 @@ export interface PitchLength {
 }
 
 export interface PitchSession {
-  persona: Persona;
   pitchLength: PitchLength;
   transcript: string;
   duration: number; // actual duration in seconds
@@ -85,14 +84,14 @@ export interface PitchFeedback {
     persuasiveness: number;
     structure: number;
     timeManagement: number;
-    personaRelevance: number;
+    impact: number;
   };
   criteriaJustifications: {
     clarity: string;
     persuasiveness: string;
     structure: string;
     timeManagement: string;
-    personaRelevance: string;
+    impact: string;
   };
 }
 
