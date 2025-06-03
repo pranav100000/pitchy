@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import ResearchStep from '../components/ResearchStep';
 import PersonaSelector from '../components/PersonaSelector';
 import ConversationInterface from '../components/ConversationInterface';
 import FeedbackDisplay from '../components/FeedbackDisplay';
-import { GameState, Persona, Scenario, ConversationExchange, SessionFeedback } from '../lib/types';
+import { GameState, Persona, Scenario, ConversationExchange, SessionFeedback, ResearchData } from '../lib/types';
 
 export default function Home() {
-  const [gameState, setGameState] = useState<GameState>('setup');
+  const [gameState, setGameState] = useState<GameState>('research');
+  const [researchData, setResearchData] = useState<ResearchData | null>(null);
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
   const [selectedVoiceQuality, setSelectedVoiceQuality] = useState<'browser' | 'premium'>('premium');
@@ -59,8 +61,14 @@ export default function Home() {
     }
   };
 
-  const resetApp = () => {
+  const handleResearchComplete = (data: ResearchData | null) => {
+    setResearchData(data);
     setGameState('setup');
+  };
+
+  const resetApp = () => {
+    setGameState('research');
+    setResearchData(null);
     setSelectedPersona(null);
     setSelectedScenario(null);
     setSelectedVoiceQuality('premium');
@@ -112,6 +120,13 @@ export default function Home() {
       </Head>
       
       <div className="min-h-screen bg-gray-100">
+        {gameState === 'research' && (
+          <ResearchStep 
+            onResearchComplete={handleResearchComplete}
+            onSkip={() => handleResearchComplete(null)}
+          />
+        )}
+
         {gameState === 'setup' && (
           <PersonaSelector 
             onPersonaSelect={setSelectedPersona}
@@ -121,6 +136,7 @@ export default function Home() {
             selectedPersona={selectedPersona}
             selectedScenario={selectedScenario}
             selectedVoiceQuality={selectedVoiceQuality}
+            researchData={researchData}
           />
         )}
         
@@ -132,6 +148,7 @@ export default function Home() {
             setConversationHistory={setConversationHistory}
             onEndSession={endSession}
             voiceQuality={selectedVoiceQuality}
+            researchData={researchData}
           />
         )}
         

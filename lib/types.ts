@@ -47,4 +47,18 @@ export interface FeedbackResponse {
   error?: string;
 }
 
-export type GameState = 'setup' | 'conversation' | 'feedback';
+export interface ResearchData {
+  query: string;
+  summary: string;
+  keyPoints: string[];
+  sources: string[];
+  timestamp: number;
+}
+
+export interface ResearchResponse {
+  success: boolean;
+  data?: ResearchData;
+  error?: string;
+}
+
+export type GameState = 'research' | 'setup' | 'conversation' | 'feedback';

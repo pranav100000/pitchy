@@ -1,6 +1,9 @@
 import { getAllPersonas } from '../lib/personas';
 import { getAllScenarios } from '../lib/scenarios';
-import { Persona, Scenario } from '../lib/types';
+import { Persona, Scenario, ResearchData } from '../lib/types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface PersonaSelectorProps {
   onPersonaSelect: (persona: Persona) => void;
@@ -10,6 +13,7 @@ interface PersonaSelectorProps {
   selectedPersona: Persona | null;
   selectedScenario: Scenario | null;
   selectedVoiceQuality: 'browser' | 'premium';
+  researchData?: ResearchData | null;
 }
 
 export default function PersonaSelector({ 
@@ -19,7 +23,8 @@ export default function PersonaSelector({
   onStart, 
   selectedPersona, 
   selectedScenario,
-  selectedVoiceQuality
+  selectedVoiceQuality,
+  researchData
 }: PersonaSelectorProps) {
   const personas = getAllPersonas();
   const scenarios = getAllScenarios();
@@ -36,6 +41,39 @@ export default function PersonaSelector({
           Practice your sales skills with realistic AI customer personas
         </p>
       </div>
+
+      {/* Research Summary */}
+      {researchData && (
+        <Card className="mb-8 sm:mb-12 border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              🔍 Research Context
+              <Badge variant="secondary">{researchData.query}</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-sm text-gray-700 mb-2">Summary:</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {researchData.summary}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm text-gray-700 mb-2">Key Points to Discuss:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {researchData.keyPoints.slice(0, 4).map((point, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <Badge className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                      {index + 1}
+                    </Badge>
+                    <span className="text-xs text-gray-600 leading-tight">{point}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Persona Selection */}
       <div className="mb-8 sm:mb-12">

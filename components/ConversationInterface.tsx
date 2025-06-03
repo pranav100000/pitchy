@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import AudioRecorder from './AudioRecorder';
-import { Persona, Scenario, ConversationExchange } from '../lib/types';
+import { Persona, Scenario, ConversationExchange, ResearchData } from '../lib/types';
 import { buildConversationPrompt } from '../lib/scenarios';
 
 interface ConversationInterfaceProps {
@@ -10,6 +10,7 @@ interface ConversationInterfaceProps {
   setConversationHistory: (history: ConversationExchange[]) => void;
   onEndSession: () => void;
   voiceQuality: 'browser' | 'premium';
+  researchData?: ResearchData | null;
 }
 
 export default function ConversationInterface({
@@ -18,7 +19,8 @@ export default function ConversationInterface({
   conversationHistory,
   setConversationHistory,
   onEndSession,
-  voiceQuality
+  voiceQuality,
+  researchData
 }: ConversationInterfaceProps) {
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [isProcessingResponse, setIsProcessingResponse] = useState(false);
@@ -43,7 +45,7 @@ export default function ConversationInterface({
     setIsProcessingResponse(true);
     
     try {
-      const messages = buildConversationPrompt(persona, scenario, [], '');
+      const messages = buildConversationPrompt(persona, scenario, [], '', researchData);
       
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -79,7 +81,7 @@ export default function ConversationInterface({
     
     try {
       // Build conversation prompt with current history
-      const messages = buildConversationPrompt(persona, scenario, conversationHistory, userMessage);
+      const messages = buildConversationPrompt(persona, scenario, conversationHistory, userMessage, researchData);
       
       const response = await fetch('/api/chat', {
         method: 'POST',
