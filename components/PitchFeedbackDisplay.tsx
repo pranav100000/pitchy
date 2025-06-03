@@ -1,4 +1,4 @@
-import { PitchFeedback, PitchSession, Persona, PitchLength } from '../lib/types';
+import { PitchFeedback, PitchSession } from '../lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,7 @@ export default function PitchFeedbackDisplay({
   pitchSession,
   onTryAgain
 }: PitchFeedbackDisplayProps) {
-  const { persona, pitchLength, transcript, duration } = pitchSession;
+  const { pitchLength, transcript, duration } = pitchSession;
   const timeUsedPercentage = (duration / pitchLength.duration) * 100;
 
   const getScoreColor = (score: number): string => {
@@ -48,9 +48,6 @@ export default function PitchFeedbackDisplay({
           Pitch Analysis Complete
         </h1>
         <div className="flex flex-wrap justify-center gap-2 mb-4">
-          <Badge variant="outline" className="text-sm">
-            {persona.name} {persona.avatar}
-          </Badge>
           <Badge variant="outline" className="text-sm">
             {pitchLength.name}
           </Badge>
@@ -112,10 +109,10 @@ export default function PitchFeedbackDisplay({
               justification: feedback.criteriaJustifications.timeManagement
             },
             { 
-              label: 'Audience Relevance', 
-              score: feedback.criteria.personaRelevance, 
-              desc: `How well did you tailor to ${persona.name}?`,
-              justification: feedback.criteriaJustifications.personaRelevance
+              label: 'Impact', 
+              score: feedback.criteria.impact, 
+              desc: 'How memorable and impactful was your pitch?',
+              justification: feedback.criteriaJustifications.impact
             }
           ].map((criterion, index) => (
             <div key={index} className="p-4 bg-gray-50 rounded-lg border-l-4 border-gray-300">

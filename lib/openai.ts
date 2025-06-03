@@ -141,14 +141,14 @@ export async function generatePitchFeedback(feedbackPrompt: string): Promise<Pit
       persuasiveness: 25,
       structure: 25,
       timeManagement: 25,
-      personaRelevance: 25
+      impact: 25
     };
     const criteriaJustifications = {
       clarity: 'Unable to parse justification from feedback',
       persuasiveness: 'Unable to parse justification from feedback',
       structure: 'Unable to parse justification from feedback',
       timeManagement: 'Unable to parse justification from feedback',
-      personaRelevance: 'Unable to parse justification from feedback'
+      impact: 'Unable to parse justification from feedback'
     };
     const feedback: string[] = [];
     
@@ -179,9 +179,9 @@ export async function generatePitchFeedback(feedbackPrompt: string): Promise<Pit
         } else if (line.includes('Time Management:')) {
           const match = line.match(/(\d+)/);
           if (match) criteria.timeManagement = parseInt(match[1]);
-        } else if (line.includes('Persona Relevance:')) {
+        } else if (line.includes('Impact:')) {
           const match = line.match(/(\d+)/);
-          if (match) criteria.personaRelevance = parseInt(match[1]);
+          if (match) criteria.impact = parseInt(match[1]);
         } else if (line.includes('CRITERIA JUSTIFICATIONS:')) {
           break;
         }
@@ -202,8 +202,8 @@ export async function generatePitchFeedback(feedbackPrompt: string): Promise<Pit
           criteriaJustifications.structure = line.substring(line.indexOf(':') + 1).trim();
         } else if (line.includes('Time Management Justification:')) {
           criteriaJustifications.timeManagement = line.substring(line.indexOf(':') + 1).trim();
-        } else if (line.includes('Persona Relevance Justification:')) {
-          criteriaJustifications.personaRelevance = line.substring(line.indexOf(':') + 1).trim();
+        } else if (line.includes('Impact Justification:')) {
+          criteriaJustifications.impact = line.substring(line.indexOf(':') + 1).trim();
         } else if (line.includes('FEEDBACK:')) {
           break;
         }
@@ -237,7 +237,7 @@ export async function generatePitchFeedback(feedbackPrompt: string): Promise<Pit
       criteriaJustifications.persuasiveness = 'Unable to extract detailed justification from AI analysis';
       criteriaJustifications.structure = 'Unable to extract detailed justification from AI analysis';
       criteriaJustifications.timeManagement = 'Unable to extract detailed justification from AI analysis';
-      criteriaJustifications.personaRelevance = 'Unable to extract detailed justification from AI analysis';
+      criteriaJustifications.impact = 'Unable to extract detailed justification from AI analysis';
     }
     
     const pitchFeedback: PitchFeedback = {

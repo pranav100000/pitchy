@@ -32,12 +32,6 @@ export default async function handler(
       });
     }
 
-    if (!pitchSession.persona || !pitchSession.persona.name || !pitchSession.persona.description) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Valid persona object is required' 
-      });
-    }
 
     if (!pitchSession.pitchLength || !pitchSession.pitchLength.name || !pitchSession.pitchLength.duration) {
       return res.status(400).json({ 

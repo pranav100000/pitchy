@@ -68,7 +68,7 @@ export default function Home() {
   };
 
   const startPitchSession = () => {
-    if (!selectedPersona || !selectedPitchLength) return;
+    if (!selectedPitchLength) return;
     
     setGameState('pitch');
     setPitchSession(null);
@@ -247,10 +247,8 @@ export default function Home() {
 
         {gameState === 'pitch-setup' && (
           <PitchModeSelector 
-            onPersonaSelect={setSelectedPersona}
             onPitchLengthSelect={setSelectedPitchLength}
             onStart={startPitchSession}
-            selectedPersona={selectedPersona}
             selectedPitchLength={selectedPitchLength}
           />
         )}
@@ -267,9 +265,8 @@ export default function Home() {
           />
         )}
 
-        {gameState === 'pitch' && selectedPersona && selectedPitchLength && (
+        {gameState === 'pitch' && selectedPitchLength && (
           <PitchRecorder
-            persona={selectedPersona}
             pitchLength={selectedPitchLength}
             onPitchComplete={handlePitchComplete}
             onCancel={() => setGameState('pitch-setup')}

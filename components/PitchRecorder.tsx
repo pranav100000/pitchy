@@ -1,20 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { Persona, PitchLength, PitchSession } from '../lib/types';
+import { PitchLength, PitchSession } from '../lib/types';
 
 interface PitchRecorderProps {
-  persona: Persona;
   pitchLength: PitchLength;
   onPitchComplete: (session: PitchSession) => void;
   onCancel: () => void;
 }
 
-export default function PitchRecorder({ persona, pitchLength, onPitchComplete, onCancel }: PitchRecorderProps) {
+export default function PitchRecorder({ pitchLength, onPitchComplete, onCancel }: PitchRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(pitchLength.duration);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcript, setTranscript] = useState<string>('');
+  const [pitchSession, setPitchSession] = useState<PitchSession | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -102,16 +103,16 @@ export default function PitchRecorder({ persona, pitchLength, onPitchComplete, o
       const result = await response.json();
 
       if (result.success && result.text) {
+        setTranscript(result.text);
         const actualDuration = pitchLength.duration - timeRemaining;
         const session: PitchSession = {
-          persona,
           pitchLength,
           transcript: result.text,
           duration: actualDuration,
           timestamp: Date.now()
         };
         
-        onPitchComplete(session);
+        setPitchSession(session);
       } else {
         throw new Error(result.error || 'Transcription failed');
       }
@@ -121,6 +122,19 @@ export default function PitchRecorder({ persona, pitchLength, onPitchComplete, o
     } finally {
       setIsTranscribing(false);
     }
+  };
+
+  const handleProceedToFeedback = () => {
+    if (pitchSession) {
+      onPitchComplete(pitchSession);
+    }
+  };
+
+  const handleRecordAgain = () => {
+    setAudioBlob(null);
+    setTranscript('');
+    setPitchSession(null);
+    setTimeRemaining(pitchLength.duration);
   };
 
   const formatTime = (seconds: number): string => {
@@ -138,7 +152,7 @@ export default function PitchRecorder({ persona, pitchLength, onPitchComplete, o
       <div className="text-center space-y-6">
         <div>
           <h2 className="text-2xl font-bold mb-2">
-            {pitchLength.name} to {persona.name} {persona.avatar}
+            {pitchLength.name}
           </h2>
           <p className="text-gray-600">{pitchLength.description}</p>
         </div>
@@ -185,16 +199,28 @@ export default function PitchRecorder({ persona, pitchLength, onPitchComplete, o
             </Button>
           )}
 
-          {audioBlob && !isTranscribing && (
+          {audioBlob && !isTranscribing && !transcript && (
             <>
               <Button onClick={handleSubmit} size="lg" className="px-8">
+                Get Transcript
+              </Button>
+              <Button 
+                onClick={handleRecordAgain} 
+                variant="outline" 
+                size="lg"
+              >
+                Record Again
+              </Button>
+            </>
+          )}
+
+          {transcript && (
+            <>
+              <Button onClick={handleProceedToFeedback} size="lg" className="px-8">
                 Get Feedback
               </Button>
               <Button 
-                onClick={() => {
-                  setAudioBlob(null);
-                  setTimeRemaining(pitchLength.duration);
-                }} 
+                onClick={handleRecordAgain} 
                 variant="outline" 
                 size="lg"
               >
@@ -210,15 +236,34 @@ export default function PitchRecorder({ persona, pitchLength, onPitchComplete, o
           )}
         </div>
 
+        {/* Transcript Display */}
+        {transcript && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900">Your Pitch Transcript:</h3>
+            <div className="bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{transcript}</p>
+            </div>
+            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+              <p className="font-semibold">Review your transcript above</p>
+              <p>Make sure it accurately captured what you said. If not, you can record again. If it looks good, proceed to get your detailed feedback!</p>
+            </div>
+          </div>
+        )}
+
         {/* Instructions */}
-        <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
-          <p className="font-semibold mb-2">Pitch to {persona.name}:</p>
-          <p>{persona.description}</p>
-          <p className="mt-2">
-            You have {formatTime(pitchLength.duration)} to deliver your pitch. 
-            The timer will automatically stop when time runs out.
-          </p>
-        </div>
+        {!transcript && (
+          <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
+            <p className="font-semibold mb-2">Pitch Instructions:</p>
+            <p>Deliver your best sales pitch for any product or service you choose.</p>
+            <p className="mt-2">
+              You have {formatTime(pitchLength.duration)} to deliver your pitch. 
+              The timer will automatically stop when time runs out.
+            </p>
+            <p className="mt-2 text-xs">
+              Your pitch will be evaluated objectively on clarity, persuasiveness, structure, timing, and overall impact.
+            </p>
+          </div>
+        )}
       </div>
     </Card>
   );
