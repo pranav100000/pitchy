@@ -1,4 +1,4 @@
-import { Scenario, Persona, ConversationExchange } from './types';
+import { Scenario, Persona, ConversationExchange, ResearchData } from './types';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 export const scenarios: Record<string, Scenario> = {
@@ -57,16 +57,28 @@ export function buildConversationPrompt(
   persona: Persona, 
   scenario: Scenario, 
   conversationHistory: ConversationExchange[], 
-  userMessage: string
+  userMessage: string,
+  researchData?: ResearchData | null
 ): ChatCompletionMessageParam[] {
   const personaData = persona;
   const scenarioData = scenario;
   
-  const systemMessage: ChatCompletionMessageParam = {
-    role: 'system',
-    content: `${personaData.systemPrompt}
+  let systemContent = `${personaData.systemPrompt}
 
-SCENARIO CONTEXT: ${scenarioData.initialContext}
+SCENARIO CONTEXT: ${scenarioData.initialContext}`;
+
+  // Add research context if available
+  if (researchData) {
+    systemContent += `
+
+RESEARCH CONTEXT: The salesperson has researched "${researchData.query}" and has the following information:
+SUMMARY: ${researchData.summary}
+KEY POINTS: ${researchData.keyPoints.join(', ')}
+
+As ${personaData.name}, you should respond realistically to any topics or information the salesperson mentions that relates to this research. Be impressed if they demonstrate good knowledge, but also test them with follow-up questions that fit your persona.`;
+  }
+
+  systemContent += `
 
 IMPORTANT INSTRUCTIONS:
 - Stay in character as ${personaData.name} throughout the conversation
@@ -75,7 +87,11 @@ IMPORTANT INSTRUCTIONS:
 - Don't break character or mention that you're an AI
 - React authentically based on your persona's traits and the scenario context
 - If the salesperson is doing well, show appropriate interest
-- If they're struggling, respond according to your persona's nature`
+- If they're struggling, respond according to your persona's nature`;
+
+  const systemMessage: ChatCompletionMessageParam = {
+    role: 'system',
+    content: systemContent
   };
 
   const messages: ChatCompletionMessageParam[] = [systemMessage];
