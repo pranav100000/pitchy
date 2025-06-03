@@ -43,8 +43,13 @@ export default async function handler(
 
     // Read the file and create a File object for OpenAI
     const fileBuffer = fs.readFileSync(audioFile.filepath);
-    const file = new File([fileBuffer], audioFile.originalFilename || 'audio.wav', {
-      type: audioFile.mimetype || 'audio/wav'
+    const filename = audioFile.originalFilename || 'audio.webm';
+    const mimeType = audioFile.mimetype || 'audio/webm';
+    
+    console.log('Transcribing audio file:', { filename, mimeType, size: fileBuffer.length });
+    
+    const file = new File([fileBuffer], filename, {
+      type: mimeType
     });
 
     // Clean up the temporary file
@@ -66,9 +71,16 @@ export default async function handler(
     }
   } catch (error) {
     console.error('Transcription API error:', error);
+    
+    // More detailed error message
+    let errorMessage = 'Internal server error during transcription';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     res.status(500).json({
       success: false,
-      error: 'Internal server error during transcription'
+      error: errorMessage
     });
   }
 }

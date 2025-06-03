@@ -61,4 +61,45 @@ export interface ResearchResponse {
   error?: string;
 }
 
-export type GameState = 'research' | 'setup' | 'conversation' | 'feedback';
+export interface PitchLength {
+  id: string;
+  name: string;
+  duration: number; // in seconds
+  description: string;
+}
+
+export interface PitchSession {
+  persona: Persona;
+  pitchLength: PitchLength;
+  transcript: string;
+  duration: number; // actual duration in seconds
+  timestamp: number;
+}
+
+export interface PitchFeedback {
+  score: number;
+  feedback: string[];
+  rawFeedback: string;
+  criteria: {
+    clarity: number;
+    persuasiveness: number;
+    structure: number;
+    timeManagement: number;
+    personaRelevance: number;
+  };
+  criteriaJustifications: {
+    clarity: string;
+    persuasiveness: string;
+    structure: string;
+    timeManagement: string;
+    personaRelevance: string;
+  };
+}
+
+export interface PitchFeedbackResponse {
+  success: boolean;
+  feedback?: PitchFeedback;
+  error?: string;
+}
+
+export type GameState = 'research' | 'setup' | 'conversation-setup' | 'pitch-setup' | 'conversation' | 'feedback' | 'pitch' | 'pitch-feedback';
