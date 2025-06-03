@@ -1,4 +1,4 @@
-import { Scenario, Persona, ConversationExchange, ResearchData } from './types';
+import { Scenario, Persona, ConversationExchange, ResearchData, PitchSession } from './types';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 export const scenarios: Record<string, Scenario> = {
@@ -169,4 +169,99 @@ FEEDBACK:
 • [One thing they did okay, if anything, but still needs work]
 
 BE SPECIFIC. USE EXAMPLES FROM THE CONVERSATION. Don't give generic advice. If they failed, tell them exactly why and how. No participation trophies - only give high scores for genuinely excellent performance that would actually close deals.`;
+}
+
+export function buildPitchFeedbackPrompt(pitchSession: PitchSession): string {
+  const { persona, pitchLength, transcript, duration } = pitchSession;
+  const timeUsedPercentage = (duration / pitchLength.duration) * 100;
+  
+  return `You are a RUTHLESS but HONEST pitch coach analyzing this sales pitch. Your job is to give brutal, realistic feedback that will actually help improve pitching skills. Do NOT sugarcoat or give participation trophies.
+
+PITCH DETAILS:
+- Target Audience: ${persona.name} - ${persona.description}
+- Allocated Time: ${pitchLength.duration} seconds (${pitchLength.name})
+- Time Used: ${duration} seconds (${timeUsedPercentage.toFixed(1)}% of allocated time)
+- Pitch Type: ${pitchLength.description}
+
+PITCH TRANSCRIPT:
+${transcript}
+
+SCORING CRITERIA (Rate each 0-100, be brutally honest):
+
+1. CLARITY (0-100): Was the message clear and easy to understand?
+- 90-100: Crystal clear, impossible to misunderstand
+- 70-89: Mostly clear with minor confusion
+- 50-69: Somewhat unclear, key points lost
+- 30-49: Confusing, hard to follow
+- 0-29: Incomprehensible mess
+
+2. PERSUASIVENESS (0-100): How compelling and convincing was the pitch?
+- 90-100: Absolutely compelling, would buy immediately
+- 70-89: Very persuasive with strong arguments
+- 50-69: Somewhat convincing but weak points
+- 30-49: Not very persuasive, unconvincing
+- 0-29: Completely unpersuasive, actively off-putting
+
+3. STRUCTURE (0-100): Was there a logical flow and organization?
+- 90-100: Perfect structure, masterful flow
+- 70-89: Good structure with clear progression
+- 50-69: Decent structure but some issues
+- 30-49: Poor structure, jumped around
+- 0-29: No structure whatsoever, random rambling
+
+4. TIME MANAGEMENT (0-100): How well did they use their allocated time?
+- 90-100: Perfect timing, used time optimally
+- 70-89: Good timing, minor issues
+- 50-69: Decent timing but inefficient
+- 30-49: Poor timing, too short/long or wasted time
+- 0-29: Terrible timing, completely mismanaged
+
+5. PERSONA RELEVANCE (0-100): How well did they tailor to ${persona.name}?
+- 90-100: Perfectly tailored, hit every persona need
+- 70-89: Well tailored with good understanding
+- 50-69: Somewhat tailored but missed opportunities
+- 30-49: Poorly tailored, generic approach
+- 0-29: Completely generic, ignored persona entirely
+
+JUDGE HARSHLY ON:
+- Did they understand ${persona.name}'s specific needs and concerns?
+- Was the value proposition clear and compelling for this persona?
+- Did they use their time wisely or ramble/rush?
+- Was there a clear structure (hook, problem, solution, benefit, call-to-action)?
+- Did they sound confident and prepared or nervous and scattered?
+- Was the language appropriate for the time constraint?
+
+SPECIAL PENALTIES:
+- If under 50% of time used: Deduct 20+ points for not filling time
+- If over 110% of time: Deduct 10+ points for going over
+- If no clear value proposition: Deduct 30+ points
+- If completely ignored persona traits: Deduct 25+ points
+- If no structure at all: Deduct 20+ points
+
+Please provide feedback in this exact format:
+
+OVERALL SCORE: [Number from 0-100, average of all criteria]
+
+CRITERIA SCORES:
+• Clarity: [0-100]
+• Persuasiveness: [0-100] 
+• Structure: [0-100]
+• Time Management: [0-100]
+• Persona Relevance: [0-100]
+
+CRITERIA JUSTIFICATIONS:
+• Clarity Justification: [Detailed explanation of why this score was given, with specific examples from the pitch]
+• Persuasiveness Justification: [Detailed explanation of why this score was given, with specific examples from the pitch]
+• Structure Justification: [Detailed explanation of why this score was given, with specific examples from the pitch]
+• Time Management Justification: [Detailed explanation of why this score was given, with specific examples from the pitch]
+• Persona Relevance Justification: [Detailed explanation of why this score was given, with specific examples from the pitch]
+
+FEEDBACK:
+• [Brutal critique of biggest failure with specific examples]
+• [Another major weakness that killed the pitch]
+• [What they completely missed about ${persona.name}]
+• [Time management issues - too short/long/poor pacing]
+• [One thing they did decently, if anything, but still needs major work]
+
+BE SPECIFIC. USE EXAMPLES FROM THE PITCH. Don't give generic advice. If they failed, tell them exactly why and how. This is a pitch, not a conversation - judge accordingly. No participation trophies.`;
 }
