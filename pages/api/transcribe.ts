@@ -46,7 +46,12 @@ export default async function handler(
     const filename = audioFile.originalFilename || 'audio.webm';
     const mimeType = audioFile.mimetype || 'audio/webm';
     
-    console.log('Transcribing audio file:', { filename, mimeType, size: fileBuffer.length });
+    console.log('Transcribing audio file:', { 
+      filename, 
+      mimeType, 
+      size: fileBuffer.length,
+      userAgent: req.headers['user-agent'] 
+    });
     
     const file = new File([fileBuffer], filename, {
       type: mimeType
